@@ -6,6 +6,10 @@ Se plantea inicialmente la resolución del problema de una manera visual impleme
 - Red neuronal convolucional (CNN)
 - Algoritmos genéticos
 
+### Descripción del ambiente:
+El ambiente del Sudoku es discreto, estático y determinista. Es discreto porque el juego se desarrolla en un conjunto finito de posibles estados (cada configuración del tablero). Es estático porque el ambiente no cambia mientras se resuelve el Sudoku, es decir, no hay elementos que se muevan o evolucionen con el tiempo. Es determinista porque las acciones tomadas por el agente tienen un resultado predecible y único
+
+Las acciones son discretas y el dominio de cada acción es un número del 1 al 9, representando el número que se quiere colocar en la celda, estas pueden ser representada por una tupla que contiene las coordenadas de la celda en la que se desea colocar el número, junto con el número mismo. Por ejemplo, para colocar un 2 en la celda (0, 2), la acción puede ser representada como (0, 2, 2).
 ### Descripción de los datos
 La entrada consiste en una sentencia de 81 caracteres que representan una cuadrícula de Sudoku parcialmente rellenada. Los dígitos del 1 al 9 representan los números en la cuadrícula y el número cero representa las celdas vacia. Para luego convertir a un *numpy array* de 9x9, utilizando la función *reshape* de *numpy*.
 

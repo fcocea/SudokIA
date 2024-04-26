@@ -1,9 +1,12 @@
+from os import environ
+
+environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame as pg
 import pandas as pd
 import numpy as np
 
-DATA = pd.read_csv('data/data-1.csv').to_numpy()[0]
-pg.init()
+DATA = pd.read_csv('data/data-1.csv').to_numpy()[32]
+
 
 class Cell:
     def __init__(self, screen, x, y, value):
@@ -12,6 +15,7 @@ class Cell:
         self.x = x
         self.y = y
         self.value = value
+
     def draw_cell(self):
         font = pg.font.Font(None, 45)
         text = font.render(str(self.value), True, (0, 0, 0))
@@ -45,15 +49,19 @@ class Board:
                     cell = Cell(self.screen, j, i, self.board[i][j])
                     cell.draw_cell()
 
+
 if __name__ == '__main__':
+    pg.init()
     screen = pg.display.set_mode((540, 540))
     screen.fill((255, 255, 255))
     pg.display.set_caption('Sudoku')
     board = Board(screen)
-    while True:
+    running = True
+    while running:
         board.draw_board()
         for event in pg.event.get():
             if event.type == pg.QUIT:
+                running = False
                 pg.quit()
-                quit()
-        pg.display.update()
+        pg.display.flip()
+        pg.time.Clock().tick(60)

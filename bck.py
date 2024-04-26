@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
-
-data = pd.read_csv('data/data-1.csv').to_numpy()[0]
+import time
+ID = 123322
+data = pd.read_csv('data/data-1.csv').to_numpy()[ID]
 sudoku, solution = np.reshape([int(c) for c in data[0]], (9, 9)), np.reshape([int(c) for c in data[1]], (9, 9))
 
 
