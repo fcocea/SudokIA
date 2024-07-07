@@ -1,0 +1,7 @@
+\tikzset{every picture/.style={line width=0.75pt}}     
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+\draw [color={black}] [line width=2.5]    (0,190) -- (140,190) ;
+\draw [color={gray}] [line width=2.5]    (140,190) -- (300,190) ;
+\draw [color={black}] [line width=2.5]    (300,190) -- (460,190) ;
+\draw [color={gray}] [line width=2.5]    (460,190) -- (620,190) ;
+\end{tikzpicture}

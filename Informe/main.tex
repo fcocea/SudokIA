@@ -1,0 +1,85 @@
+\documentclass[11pt]{article}
+%Importando preámbulo
+\usepackage{csquotes}
+\input{lib/paquetes.tex}
+\usepackage{url}
+\usepackage{subcaption}
+\usepackage{wrapfig}
+\usepackage{varwidth}
+% \AtBeginDocument{
+% \renewcommand{\BRetrieved}[1]{Recuperado {#1}, de\ }% Retrieved ... from
+% \renewcommand{\BRetrievedFrom}{Recuperado de\ }%  
+% }
+
+
+\renewcommand\spanishtablename{Tabla}
+\makeatletter
+\renewcommand\tableofcontents{%
+    \@starttoc{toc}%
+}
+\makeatother
+%Estableciendo estilo
+\pagestyle{fancy}
+\newcommand{\ecuacion}[1]{%
+    \begingroup%
+    \def\equationautorefname{Ec. }%
+    \autoref{#1}%
+    \endgroup%
+}%
+\newcommand{\figura}[1]{%
+    \begingroup%
+    \def\equationautorefname{Figura}%
+    \autoref{#1}%
+    \endgroup%
+}%
+\newcommand{\tabla}[1]{%
+    \begingroup%
+    \def\equationautorefname{Tabla}%
+    \autoref{#1}%
+    \endgroup%
+}%
+\newcommand{\V}[1]{
+  \overrightarrow{#1}
+}
+\renewcommand{\headrulewidth}{0pt}
+\rhead{}
+\lhead{}
+\cfoot{\hspace*{-1.3cm}\input{lib/footer.tikz}}
+\usepackage[version=4]{mhchem}
+\usepackage{geometry}
+ \geometry{
+a4paper,
+ left=2.54cm,
+ right=2.54cm,
+ top=2.54cm,
+ bottom=2.54cm,
+ }
+%Iniciando documento
+\begin{document}
+\nocite{*}
+\input{pages/portada.tex}
+\newpage
+
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt}
+\rhead{}
+\lhead{}
+\cfoot{\hspace*{-1.3cm}\input{lib/footer.tikz}\\\hspace*{-1cm}-\,\thepage \, -}
+
+\newpage
+\phantomsection
+\section*{Índice}
+\label{sec:indice}
+\addcontentsline{toc}{section}{Índice}
+\tableofcontents
+\newpage
+\input{pages/introduccion.tex}
+
+% \newpage
+% \phantomsection
+% \section*{Bibliografía}
+% \label{sec:Bibliografia}
+% \addcontentsline{toc}{section}{Bibliografía}
+% \printbibliography[heading=none]
+
+\end{document}

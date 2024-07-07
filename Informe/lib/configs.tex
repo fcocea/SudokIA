@@ -1,0 +1,68 @@
+\newlength{\hght}
+\newlength{\wdth}
+\newcommand{\cancelar}[3][.2ex]{\setlength{\hght}{\heightof{$#3$}}\setlength{\wdth}{\widthof{$#3$}}%
+    \makebox[0pt][l]{\tikz[baseline]{\draw[-latex](0,-#1)--(\wdth,\hght+#1) node[shift={(1mm,.5mm)}]{#2};}}#3}
+
+\usepackage[tikz]{mdframed}
+\usepackage{ntheorem}
+\parindent= .5cm %sangria
+\setlength{\oddsidemargin}{-.25cm} \setlength{\evensidemargin}{0cm}
+\setlength{\textwidth}{16.8cm} \setlength{\textheight}{27cm}
+\setlength{\topmargin}{-2.5cm}
+\usepackage{array}
+\newcolumntype{L}{>{\centering\arraybackslash}m{3cm}}
+\newcolumntype{M}[1]{>{\begin{varwidth}[t]{#1}}l<{\end{varwidth}}}
+\def\ent{\Rightarrow}
+\def\ssi{\Leftrightarrow}
+\def\R{\mathbb{R}}
+\def\C{\mathcal{C}}
+\def\Cpx{\mathbb{C}}
+\def\N{\mathbb{N}}
+\def\Z{\mathbb{Z}}
+\DeclareMathOperator{\real}{Re}
+\DeclareMathOperator{\deter}{Det}
+\DeclareMathOperator{\ima}{Im}
+\theoremstyle{break}
+\theorembodyfont{\normalfont}
+\newtheorem{solucion}{Solución}
+\surroundwithmdframed[
+    leftmargin=4pt,
+    outerlinewidth=1pt,
+    innerlinewidth=0.5pt,
+    middlelinewidth=0.7pt,
+    middlelinecolor=white,
+    bottomline=false,topline=false,leftline=false
+]{solucion}
+\newtheorem*{solu}{Solución}
+\surroundwithmdframed[
+    leftmargin=4pt,
+    outerlinewidth=1pt,
+    innerlinewidth=0.5pt,
+    middlelinewidth=0.7pt,
+    middlelinecolor=white,
+    bottomline=false,topline=false,leftline=false
+]{solu}
+\sisetup{inter-unit-product =$\cdot$}
+\providecommand{\abs}[1]{\lvert#1\rvert}
+\providecommand{\norm}[1]{\lVert#1\rVert}
+\renewcommand{\baselinestretch}{1.2}
+\allowdisplaybreaks
+
+\newcommand{\marginsecnumber}[1]{\makebox[0pt][r]{#1\hspace{6pt}}}
+\titleformat{\section}[display]
+{\Large\bfseries\filcenter}
+{{\textcolor{gray}{\thesection}}}
+{0cm}
+{\Large\bfseries}
+
+\titleformat{\subsection}[hang]
+{\large\bfseries}
+{\marginsecnumber{\textcolor{gray}{\thesubsection}}}
+{0cm}
+{\large\bfseries}
+\titleformat{\subsubsection}[hang]
+{\small\bfseries}
+{\hspace*{.5cm}\marginsecnumber{\textcolor{gray}{\thesubsubsection}}}
+{0cm}
+{\normalsize\bfseries}
+\hypersetup{hidelinks}

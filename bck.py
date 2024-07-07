@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import time
 ID = 123322
 data = pd.read_csv('data/data-1.csv').to_numpy()[ID]
 sudoku, solution = np.reshape([int(c) for c in data[0]], (9, 9)), np.reshape([int(c) for c in data[1]], (9, 9))
@@ -31,7 +30,9 @@ def solve(game: np.ndarray) -> bool:
     return True
 
 
-solve(sudoku)
-print(sudoku)
 
-print(np.array_equal(sudoku, solution))
+
+if __name__ == '__main__':
+    solve(sudoku)
+    print(sudoku)
+    print(np.array_equal(sudoku, solution))
