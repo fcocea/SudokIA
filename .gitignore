@@ -1,6 +1,6 @@
 .idea/
 __pycache__
-
+.venv
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
