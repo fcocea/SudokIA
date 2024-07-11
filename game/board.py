@@ -7,7 +7,7 @@ from game.cell import Cell
 import pandas as pd
 import numpy as np
 
-DATA = pd.read_csv('data/data-1.csv').to_numpy()[5312]
+DATA = pd.read_csv('data/test.csv').to_numpy()
 keras = None
 
 METHODS = {
@@ -84,7 +84,7 @@ class Board:
         if not empty:
             if not self.finished:
                 self.finished = True
-                print('Sudoku resuelto')
+                print('Sudoku solved')
 
             return True
         for nums in range(9):
@@ -115,50 +115,63 @@ class Board:
         if not empty:
             if not self.finished:
                 self.finished = True
-                print('Sudoku resuelto')
+                print('Sudoku resuelto!')
             return True
         while True:
             out = self.cnn_model.predict(
-                self.cnn_feet.reshape(1, 9, 9, 1)).squeeze()
-
-            pred = np.argmax(out, axis=1).reshape((9, 9)) + 1
-            prob = np.around(np.max(out, axis=1).reshape((9, 9)), 2)
+                self.cnn_feet.reshape((1, 9, 9, 1)), verbose=None).squeeze()
+            pred = np.argmax(out, axis=-1) + 1
+            prob = np.around(np.max(out, axis=-1), 2)
             self.cnn_feet = denorm(self.cnn_feet).reshape((9, 9))
             mask = (self.cnn_feet == 0)
             if (mask.sum() == 0):
                 break
-            prob_new = prob * mask
-            ind = np.argmax(prob_new)
+            ind = np.argmax(prob * mask)
             x, y = (ind // 9), (ind % 9)
             val = pred[x][y]
             self.cnn_feet[x][y] = val
             if val != self.solved_board[x][y]:
                 print(
-                    f"Error: Expected {self.solved_board[x][y]} but got {val}")
+                    f"Error: Se esperaba {self.solved_board[x][y]} pero se obtuvo {val}")
                 self.cells[x][y].update_color((255, 0, 0))
             self.update_cell(x, y, val)
             self.draw_board()
             print(
-                f"Updated board after filling cell ({x}, {y}) with value {val}:")
+                f"Actualizando la celda ({x}, {y}) con {val}")
             self.cnn_feet = norm(self.cnn_feet)
 
 
-def run_game(method):
+def run_game(method, model_path=None, index=None):
+    global DATA
+    random_index = np.random.randint(0, len(DATA))
+    if index is not None:
+        if index < len(DATA):
+            DATA = DATA[index]
+        else:
+            DATA = DATA[random_index]
+    else:
+        DATA = DATA[random_index]
     print(f"Resolviendo Sudoku con el método {METHODS[method]}")
     model = None
     if method == 'cnn':
         global keras
-        print('Cargando modelo de red neuronal...')
+        print(f'Cargando modelo de red neuronal... ({model_path})')
         spec = importlib.util.find_spec('keras')
         if spec is not None:
             keras = importlib.import_module('keras')
-
-        model = keras.models.load_model('cnn/solverModel.keras')
+        if keras is None:
+            print('No se encontró el módulo keras')
+            exit(1)
+        if model_path is None:
+            print('No se especificó el modelo de CNN')
+            exit(1)
+        model = keras.models.load_model(model_path)
     try:
         pg.init()
         screen = pg.display.set_mode((540, 540))
         screen.fill((255, 255, 255))
-        pg.display.set_caption('SudokIA')
+        pg.display.set_caption(
+            f'SudokIA | {METHODS[method]} | {random_index if index is None else index}')
         board = Board(screen, cnn_model=model)
         running = True
         while running:

@@ -16,7 +16,13 @@ def parser():
                        help='Probar los métodos de resolución')
     parser.add_argument('--method', type=str, choices=['cnn', 'back', 'gen'],
                         default='back', help='Método para resolver el Sudoku (por defecto: back)')
-    return parser.parse_args()
+    parser.add_argument('--model', type=str, help='Ruta al modelo de CNN')
+    parser.add_argument('-i', type=int, help='Índice del Sudoku a resolver')
+    args = parser.parse_args()
+    if args.solve and args.method == 'cnn' and not args.model:
+        parser.error(
+            "--model es obligatorio cuando se usa --solve con --method=cnn")
+    return args
 
 
 if __name__ == '__main__':
@@ -32,4 +38,4 @@ if __name__ == '__main__':
             'board', 'game/board.py')
         board = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(board)
-        board.run_game(method=args.method)
+        board.run_game(method=args.method, model_path=args.model, index=args.i)

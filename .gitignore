@@ -14,7 +14,7 @@ __pycache__
 *.cb
 *.cb2
 .*.lb
-
+*.ipynb
 ## Intermediate documents:
 *.dvi
 *.xdv

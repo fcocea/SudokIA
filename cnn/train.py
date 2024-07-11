@@ -22,19 +22,6 @@ def get_model():
 
     model = keras.models.Sequential()
 
-    # model.add(Conv2D(64, kernel_size=(3, 3), activation='relu',
-    #           padding='same', input_shape=(9, 9, 1)))
-    # model.add(BatchNormalization())
-    # model.add(Conv2D(64, kernel_size=(3, 3), activation='relu', padding='same'))
-    # model.add(BatchNormalization())
-    # model.add(Conv2D(128, kernel_size=(1, 1),
-    #           activation='relu', padding='same'))
-
-    # model.add(Flatten())
-    # model.add(Dense(81*9))
-    # model.add(Reshape((-1, 9)))
-    # model.add(Activation('softmax'))
-
     model.add(Conv2D(512, kernel_size=(3, 3), activation='relu',
               padding='same', input_shape=(9, 9, 1)))
     model.add(BatchNormalization())
@@ -75,5 +62,5 @@ def train_model():
     model = get_model()
     adam = Adam(learning_rate=0.001)
     model.compile(loss='sparse_categorical_crossentropy', optimizer=adam)
-    model.fit(X, Y, batch_size=64, epochs=5)
+    model.fit(X, Y, batch_size=32, epochs=2)
     model.save('./cnn/solverModel.keras')
