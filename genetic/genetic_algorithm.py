@@ -1,16 +1,10 @@
 import random as rndm
-import genes as gn
-import fitness as ft
-import mutation as mt
+import genetic.genes as gn
+import genetic.fitness as ft
+import genetic.mutation as mt
+import pandas as pd
+import numpy as np
 
-#modificar con dataset
-def read_puzzle(address):
-    puzzle = []
-    f = open(address, 'r')
-    for row in f:
-        temp = row.split()
-        puzzle.append([int(c) for c in temp])
-    return puzzle
 
 def r_get_mating_pool(population):
     fitness_list = []
@@ -25,6 +19,7 @@ def r_get_mating_pool(population):
         pool.append(ch[1])
     return pool
 
+
 def w_get_mating_pool(population):
     fitness_list = []
     pool = []
@@ -36,6 +31,7 @@ def w_get_mating_pool(population):
         ch = rndm.choices(fitness_list, weights=weight)[0]
         pool.append(ch[1])
     return pool
+
 
 def get_offsprings(population, initial, pm, pc):
     new_pool = []
@@ -51,28 +47,40 @@ def get_offsprings(population, initial, pm, pc):
         i += 2
     return new_pool
 
-## Hyperparameters ##
 
-# Population size
-POPULATION = 1000
-# Number of generations
-REPETITION = 1000
-# Probability of mutation
-PM = 0.1
-# Probability of crossover
-PC = 0.95
+def genetic_algorithm():
+    ## Hyperparameters ##
+    # Population size
+    POPULATION = 1000
+    # Number of generations
+    REPETITION = 1000
+    # Probability of mutation
+    PM = 0.1
+    # Probability of crossover
+    PC = 0.95
 
-# Main genetic algorithm function
-def genetic_algorithm(initial_file):
-    initial = read_puzzle(initial_file)
+    def pch(ch):
+        for i in range(9):
+            for j in range(9):
+                print(ch[i][j], end=" ")
+            print("")
+    df = pd.read_csv('data/test.csv').to_numpy()[1]
+
+    def read_puzzle():
+        return np.reshape([int(c) for c in df[0]], (9, 9))
+    initial = read_puzzle()
+
     population = gn.make_population(POPULATION, initial)
-    for _ in range(REPETITION):
+    for index in range(REPETITION):
         mating_pool = r_get_mating_pool(population)
         rndm.shuffle(mating_pool)
         population = get_offsprings(mating_pool, initial, PM, PC)
         fit = [ft.get_fitness(c) for c in population]
         m = max(fit)
+        print(f'Generación {index + 1} - Fitness: {m}')
+        for c in population:
+            if ft.get_fitness(c) == m:
+                pch(c)
         if m == 0:
             return population
     return population
-

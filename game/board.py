@@ -6,6 +6,19 @@ from bck import is_valid
 from game.cell import Cell
 import pandas as pd
 import numpy as np
+import genetic.genes as gn
+import genetic.genetic_algorithm as ga
+import genetic.fitness as ft
+import random as rndm
+
+# Population size
+POPULATION = 1000
+# Number of generations
+REPETITION = 1000
+# Probability of mutation
+PM = 0.1
+# Probability of crossover
+PC = 0.95
 
 DATA = pd.read_csv('data/test.csv').to_numpy()
 keras = None
@@ -32,6 +45,7 @@ class Board:
         self.solved_board = np.reshape([int(c) for c in DATA[1]], (9, 9))
         self.cells = [[Cell(screen, i * 60, j * 60, self.board[i][j])
                        for j in range(9)] for i in range(9)]
+
         self.cnn_model = cnn_model
         self.cnn_feet = norm(self.board.copy()) if cnn_model else None
         self.finished = False
@@ -41,6 +55,9 @@ class Board:
         self.cells[x][y].value = value
 
     def draw_board(self):
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                exit()
         self.screen.fill((255, 255, 255))
         for i in range(9):
             for j in range(9):
@@ -68,10 +85,7 @@ class Board:
         pg.display.flip()
 
     def dfs_solver(self):
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                exit()
-
+        self.draw_board()
         empty = None
         for i in range(9):
             for j in range(9):
@@ -90,6 +104,10 @@ class Board:
         for nums in range(9):
             if is_valid(self.board, empty[0], empty[1], nums + 1):
                 self.update_cell(empty[0], empty[1], nums + 1)
+                if (nums + 1) != self.solved_board[empty[0]][empty[1]]:
+                    self.cells[empty[0]][empty[1]].update_color((255, 0, 0))
+                else:
+                    self.cells[empty[0]][empty[1]].update_color((0, 0, 0))
                 pg.time.delay(52)
                 self.draw_board()
                 if self.dfs_solver():
@@ -100,9 +118,6 @@ class Board:
 
     def cnn_solver(self):
         self.draw_board()
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                exit()
         empty = None
         for i in range(9):
             for j in range(9):
@@ -140,6 +155,40 @@ class Board:
                 f"Actualizando la celda ({x}, {y}) con {val}")
             self.cnn_feet = norm(self.cnn_feet)
 
+    def gen_solver(self):
+        self.draw_board()
+        if self.finished:
+            return True
+        initial = self.board.copy()
+        population = gn.make_population(POPULATION, initial)
+        for index in range(REPETITION):
+            mating_pool = ga.r_get_mating_pool(population)
+            rndm.shuffle(mating_pool)
+            population = ga.get_offsprings(mating_pool, initial, PM, PC)
+            fit = [ft.get_fitness(c) for c in population]
+            m = max(fit)
+            print(f'Generación {index + 1} - Fitness: {m}')
+            for c in population:
+                if ft.get_fitness(c) == m:
+                    for i in range(9):
+                        for j in range(9):
+                            if c[i][j] != self.board[i][j]:
+                                self.update_cell(i, j, c[i][j])
+                                if c[i][j] != self.solved_board[i][j]:
+                                    self.cells[i][j].update_color((255, 0, 0))
+                                else:
+                                    self.cells[i][j].update_color((0, 0, 0))
+                    self.draw_board()
+            if m == 0:
+                self.finished = True
+                break
+        if not self.finished:
+            print(
+                f'No se pudo resolver el Sudoku en {REPETITION} repeticiones')
+            self.finished = True
+        else:
+            print('Sudoku resuelto!')
+
 
 def run_game(method, model_path=None, index=None):
     global DATA
@@ -175,10 +224,13 @@ def run_game(method, model_path=None, index=None):
         board = Board(screen, cnn_model=model)
         running = True
         while running:
+            board.draw_board()
             if method == 'back':
                 board.dfs_solver()
             elif method == 'cnn':
                 board.cnn_solver()
+            elif method == 'gen':
+                board.gen_solver()
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
