@@ -1,8 +1,9 @@
-
-
 import importlib.util
 import pygame as pg
-from bck import is_valid
+from back.classic import is_valid
+import back.utils as utils
+import back.lrv as lrv
+import back.mrv as mrv
 from game.cell import Cell
 import pandas as pd
 import numpy as np
@@ -25,8 +26,10 @@ keras = None
 
 METHODS = {
     'cnn': 'Redes Neuronales Convolucionales',
-    'back': 'Backtracking',
+    'classic': 'Backtracking Clásico',
     'gen': 'Algoritmo Genético',
+    'lrv': 'Least Constraining Value - Backtracking',
+    'mrv': 'Most Restricting Value - Backtracking'
 }
 
 
@@ -39,7 +42,7 @@ def norm(a):
 
 
 class Board:
-    def __init__(self, screen: pg.display, cnn_model=None):
+    def __init__(self, screen: pg.display, cnn_model=None, need_domains=False):
         self.screen = screen
         self.board = np.reshape([int(c) for c in DATA[0]], (9, 9))
         self.solved_board = np.reshape([int(c) for c in DATA[1]], (9, 9))
@@ -49,6 +52,8 @@ class Board:
         self.cnn_model = cnn_model
         self.cnn_feet = norm(self.board.copy()) if cnn_model else None
         self.finished = False
+        self.domains = None if not need_domains else utils.initialize_domains(
+            self.board)
 
     def update_cell(self, x: int, y: int, value: int):
         self.board[x][y] = value
@@ -84,7 +89,7 @@ class Board:
                         _cell.value, (21 + j * 60, 16 + i * 60))
         pg.display.flip()
 
-    def dfs_solver(self):
+    def classic_back_solver(self):
         self.draw_board()
         empty = None
         for i in range(9):
@@ -110,11 +115,67 @@ class Board:
                     self.cells[empty[0]][empty[1]].update_color((0, 0, 0))
                 pg.time.delay(52)
                 self.draw_board()
-                if self.dfs_solver():
+                if self.classic_back_solver():
                     return True
                 self.update_cell(empty[0], empty[1], 0)
                 pg.time.delay(52)
                 self.draw_board()
+
+    def lrv_solver(self):
+        if utils.is_complete(self.board):
+            if not self.finished:
+                print('Sudoku resuelto!')
+            self.finished = True
+            return True
+        for r in range(9):
+            for c in range(9):
+                if self.board[r][c] == 0:
+                    row, col = r, c
+                    break
+        for value in lrv.least_constraining_value(self.domains, self.board, row, col):
+            if utils.is_consistent(self.board, row, col, value):
+                if value != self.solved_board[row][col]:
+                    self.cells[row][col].update_color((255, 0, 0))
+                else:
+                    self.cells[row][col].update_color((0, 0, 0))
+                self.update_cell(row, col, value)
+                pg.time.delay(52)
+                self.draw_board()
+                utils.forward_checking(
+                    self.domains, row, col, value)
+                if self.lrv_solver():
+                    return True
+                self.update_cell(row, col, 0)
+                pg.time.delay(52)
+                self.draw_board()
+
+    def mrv_solver(self):
+        if utils.is_complete(self.board):
+            if not self.finished:
+                print('Sudoku resuelto!')
+            self.finished = True
+            return True
+        row, col = mrv.select_unassigned_variable_mrv(
+            self.board, self.domains)
+        if row is None:
+            return False
+        for value in self.domains[(row, col)]:
+            if utils.is_consistent(self.board, row, col, value):
+                if value != self.solved_board[row][col]:
+                    self.cells[row][col].update_color((255, 0, 0))
+                else:
+                    self.cells[row][col].update_color((0, 0, 0))
+                self.update_cell(row, col, value)
+                pg.time.delay(52)
+                self.draw_board()
+                utils.forward_checking(
+                    self.domains, row, col, value)
+                if self.mrv_solver():
+                    return True
+                self.update_cell(row, col, 0)
+                pg.time.delay(52)
+                self.draw_board()
+        return False
 
     def cnn_solver(self):
         self.draw_board()
@@ -221,12 +282,17 @@ def run_game(method, model_path=None, index=None):
         screen.fill((255, 255, 255))
         pg.display.set_caption(
             f'SudokIA | {METHODS[method]} | {random_index if index is None else index}')
-        board = Board(screen, cnn_model=model)
+        board = Board(screen, cnn_model=model,
+                      need_domains=method == 'lrv' or method == 'mrv')
         running = True
         while running:
             board.draw_board()
-            if method == 'back':
-                board.dfs_solver()
+            if method == 'classic':
+                board.classic_back_solver()
+            if method == 'lrv':
+                board.lrv_solver()
+            elif method == 'mrv':
+                board.mrv_solver()
             elif method == 'cnn':
                 board.cnn_solver()
             elif method == 'gen':
