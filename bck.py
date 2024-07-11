@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 ID = 123322
 data = pd.read_csv('data/data-1.csv').to_numpy()[ID]
-sudoku, solution = np.reshape([int(c) for c in data[0]], (9, 9)), np.reshape([int(c) for c in data[1]], (9, 9))
+sudoku, solution = np.reshape([int(c) for c in data[0]], (9, 9)), np.reshape([
+    int(c) for c in data[1]], (9, 9))
 
 
 def is_valid(game: np.ndarray, row: int, col: int, num: int) -> bool:
@@ -28,8 +29,6 @@ def solve(game: np.ndarray) -> bool:
                         game[i][j] = 0
                 return False
     return True
-
-
 
 
 if __name__ == '__main__':
