@@ -62,5 +62,5 @@ def train_model():
     model = get_model()
     adam = Adam(learning_rate=0.001)
     model.compile(loss='sparse_categorical_crossentropy', optimizer=adam)
-    model.fit(X, Y, batch_size=32, epochs=2)
+    model.fit(X, Y, batch_size=64, epochs=5)
     model.save('./cnn/solverModel.keras')
