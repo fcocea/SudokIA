@@ -18,6 +18,24 @@ dataset de millones de juegos, con su respectiva solución, para afrontar de mej
 - [1 million Sudoku games - (bryanpark)](https://www.kaggle.com/datasets/bryanpark/sudoku)
 - [9 Million Sudoku Puzzles and Solutions - (rohanrao)](https://www.kaggle.com/datasets/rohanrao/sudoku)
 
-<details><summary>Extra </summary>
-Se podría pensar también en utilizar procesamiento de imagenes para obtener la cuadrícula de Sudoku, y luego resolverlo
-</details>
+### Instrucciones de uso
+
+1. Clonar el repositorio
+```bash
+git clone https://github.com/fcocea/SudokIA
+```
+2. Creación de entorno virtual (Opcional)
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+3. Instalar las dependencias
+```bash
+pip install -r requirements.txt
+```
+
+4. Ejecutar el script
+```bash
+python main.py --help
+```
