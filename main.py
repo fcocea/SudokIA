@@ -15,7 +15,7 @@ def parser():
     group.add_argument('--test', action='store_true',
                        help='Probar los métodos de resolución')
     parser.add_argument('--method', type=str, choices=['cnn', 'gen', 'lrv', 'mrv', 'classic',],
-                        default='back', help='Método para resolver/probar el Sudoku (por defecto: classic)')
+                        default='classic', help='Método para resolver/probar el Sudoku (por defecto: classic)')
     parser.add_argument('--model', type=str, help='Ruta al modelo de CNN')
     parser.add_argument('-i', type=int, help='Índice del Sudoku a resolver')
     parser.add_argument('--all', action='store_true',

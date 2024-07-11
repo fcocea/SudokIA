@@ -11,7 +11,7 @@ import genetic.genes as gn
 import genetic.genetic_algorithm as ga
 import genetic.fitness as ft
 import random as rndm
-
+from cnn.test import denorm, norm
 # Population size
 POPULATION = 1000
 # Number of generations
@@ -31,14 +31,6 @@ METHODS = {
     'lrv': 'Least Constraining Value - Backtracking',
     'mrv': 'Most Restricting Value - Backtracking'
 }
-
-
-def denorm(a):
-    return (a+.5)*9
-
-
-def norm(a):
-    return (a/9)-.5
 
 
 class Board:
