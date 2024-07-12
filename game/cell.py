@@ -2,13 +2,13 @@ import pygame as pg
 
 
 class Cell:
-    def __init__(self, screen: pg.display, x: int, y: int, value: int):
+    def __init__(self, screen: pg.display, x: int, y: int, value: int, color: tuple[int, int, int] = (0, 0, 0)):
         self.screen = screen
         self.x = x
         self.y = y
         self.value = value
         self.rect = pg.Rect(x, y, 60, 60)
-        self.color = (0, 0, 0)
+        self.color = color
 
     def draw(self, color: tuple[int, int, int], thickness: int = 1) -> None:
         pg.draw.rect(self.screen, color, self.rect, thickness)

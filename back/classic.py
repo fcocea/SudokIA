@@ -1,26 +1,24 @@
+from back.utils import is_complete, get_unassigned_locations, get_possible_values
 import numpy as np
 
 
-def is_valid(game: np.ndarray, row: int, col: int, num: int) -> bool:
-    for i in range(9):
-        if game[row][i] == num or game[i][col] == num:
-            return False
-    for i in range(3):
-        for j in range(3):
-            if game[(row // 3) * 3 + i][(col // 3) * 3 + j] == num:
-                return False
-    return True
-
-
-def solve(game: np.ndarray) -> bool:
-    for i in range(9):
-        for j in range(9):
-            if game[i][j] == 0:
-                for num in range(1, 10):
-                    if is_valid(game, i, j, num):
-                        game[i][j] = num
-                        if solve(game):
-                            return True
-                        game[i][j] = 0
-                return False
-    return True
+def backtracking(board, heuristic=None):
+    if is_complete(board):
+        return board
+    if heuristic:
+        next_cell = heuristic(board)
+        if next_cell is None:
+            return None
+    else:
+        unassigned = get_unassigned_locations(board)
+        if not unassigned:
+            return None
+        next_cell = unassigned[0]
+    row, col = next_cell
+    possible_values = get_possible_values(board, row, col)
+    for num in possible_values:
+        board[row][col] = num
+        if backtracking(board, heuristic) is not None:
+            return board
+        board[row][col] = 0
+    return None

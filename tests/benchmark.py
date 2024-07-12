@@ -3,10 +3,11 @@ import cnn.test as cnn_test
 import pandas as pd
 import numpy as np
 import time
+import genetic.genetic_algorithm as genetic
 keras = None
 
 DATA = pd.read_csv('data/test.csv').to_numpy()
-TESTS = 1000
+TESTS = 50
 
 
 def run_test(method='classic', model_path=None, all=None):
@@ -32,10 +33,22 @@ def run_test(method='classic', model_path=None, all=None):
             if np.array_equal(pred, solution):
                 correct += 1
         print(f'CNN: {correct}/{TESTS} correct')
-        # % correct
         print(f'Accuracy: {correct/TESTS*100:.2f}%')
         print(f'Total prediction time: {total_prediction_time:.2f}s')
-        # average
         print(f'Average prediction time: {total_prediction_time/TESTS:.2f}s')
 
-    print("Running test")
+    if method == 'gen':
+        print(f"Running Genetic test ({TESTS})")
+        correct = 0
+        total_time = 0
+        for i in range(TESTS):
+            board, solution = boards[323], solutions[323]
+            start = time.time()
+            resp = genetic.genetic_algorithm(board)
+            total_time += (time.time() - start)
+            if np.array_equal(resp, solution):
+                correct += 1
+        print(f'Genetic: {correct}/{TESTS} correct')
+        print(f'Accuracy: {correct/TESTS*100:.2f}%')
+        print(f'Total time: {total_time:.2f}s')
+        print(f'Average time: {total_time/TESTS:.2f}s')

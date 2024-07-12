@@ -1,94 +1,54 @@
-from copy import deepcopy
-
-
-def initialize_domains(board):
-    """
-    Inicializa los dominios de cada celda en el tablero de Sudoku.
-
-    Parameters:
-    board (list of list of int): El tablero de Sudoku.
-
-    Returns:
-    dict: Un diccionario con los dominios de cada celda.
-    """
-    domains = {}
-    for r in range(9):
-        for c in range(9):
-            if board[r][c] == 0:
-                domains[(r, c)] = list(range(1, 10))
-            else:
-                domains[(r, c)] = [board[r][c]]
-    return domains
-
-# Función para verificar si el tablero está completo
-
-
 def is_complete(board):
-    """
-    Verifica si el tablero de Sudoku está completo.
-
-    Parameters:
-    board (list of list of int): El tablero de Sudoku.
-
-    Returns:
-    bool: True si el tablero está completo, False de lo contrario.
-    """
-    for row in board:
-        if 0 in row:
-            return False
-    return True
-
-# Función para verificar si un valor es consistente con las restricciones del Sudoku
+    return all(all(cell != 0 for cell in row) for row in board)
 
 
-def is_consistent(board, row, col, value):
-    """
-    Verifica si un valor es consistente con las restricciones del Sudoku.
-
-    Parameters:
-    board (list of list of int): El tablero de Sudoku.
-    row (int): La fila de la celda.
-    col (int): La columna de la celda.
-    value (int): El valor a verificar.
-
-    Returns:
-    bool: True si el valor es consistente, False de lo contrario.
-    """
-    for i in range(9):
-        if board[row][i] == value or board[i][col] == value:
+def is_valid(board, row, col, num):
+    for x in range(9):
+        if board[row][x] == num or board[x][col] == num:
             return False
     start_row, start_col = 3 * (row // 3), 3 * (col // 3)
     for i in range(3):
         for j in range(3):
-            if board[start_row + i][start_col + j] == value:
+            if board[start_row + i][start_col + j] == num:
                 return False
     return True
 
-# Función para realizar forward checking
+
+def get_unassigned_locations(board):
+    return [(i, j) for i in range(9) for j in range(9) if board[i][j] == 0]
 
 
-def forward_checking(domains, row, col, value):
-    """
-    Realiza la propagación de restricciones eliminando valores del dominio de las celdas vecinas.
+def get_possible_values(board, row, col):
+    return [num for num in range(1, 10) if is_valid(board, row, col, num)]
 
-    Parameters:
-    domains (dict): Los dominios de cada celda.
-    row (int): La fila de la celda.
-    col (int): La columna de la celda.
-    value (int): El valor a asignar.
 
-    Returns:
-    dict: Un nuevo diccionario con los dominios actualizados.
-    """
-    new_domains = deepcopy(domains)
-    for i in range(9):
-        if value in new_domains[(row, i)]:
-            new_domains[(row, i)].remove(value)
-        if value in new_domains[(i, col)]:
-            new_domains[(i, col)].remove(value)
+def combined_heuristic(board):
+    unassigned = get_unassigned_locations(board)
+    if not unassigned:
+        return None
+    mrv_cells = min(unassigned, key=lambda x: len(
+        get_possible_values(board, x[0], x[1])))
+    best_cell = mrv_cells
+    min_constraints = float('inf')
+    row, col = mrv_cells
+    for value in get_possible_values(board, row, col):
+        constraints = count_constraints(board, row, col, value)
+        if constraints < min_constraints:
+            min_constraints = constraints
+            best_cell = (row, col)
+    return best_cell
+
+
+def count_constraints(board, row, col, num):
+    constraints = 0
+    for x in range(9):
+        if board[row][x] == 0 and is_valid(board, row, x, num):
+            constraints += 1
+        if board[x][col] == 0 and is_valid(board, x, col, num):
+            constraints += 1
     start_row, start_col = 3 * (row // 3), 3 * (col // 3)
     for i in range(3):
         for j in range(3):
-            if value in new_domains[(start_row + i, start_col + j)]:
-                new_domains[(start_row + i, start_col + j)].remove(value)
-    return new_domains
+            if board[start_row + i][start_col + j] == 0 and is_valid(board, start_row + i, start_col + j, num):
+                constraints += 1
+    return constraints

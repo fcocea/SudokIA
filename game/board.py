@@ -1,9 +1,6 @@
 import importlib.util
 import pygame as pg
-from back.classic import is_valid
-import back.utils as utils
-import back.lrv as lrv
-import back.mrv as mrv
+from back.utils import is_complete, get_unassigned_locations, get_possible_values, combined_heuristic
 from game.cell import Cell
 import pandas as pd
 import numpy as np
@@ -28,8 +25,7 @@ METHODS = {
     'cnn': 'Redes Neuronales Convolucionales',
     'classic': 'Backtracking Clásico',
     'gen': 'Algoritmo Genético',
-    'lrv': 'Least Constraining Value - Backtracking',
-    'mrv': 'Most Restricting Value - Backtracking'
+    'combined': 'Heurística Combinada (LCV | MRV) - Backtracking'
 }
 
 
@@ -44,8 +40,8 @@ class Board:
         self.cnn_model = cnn_model
         self.cnn_feet = norm(self.board.copy()) if cnn_model else None
         self.finished = False
-        self.domains = None if not need_domains else utils.initialize_domains(
-            self.board)
+        # self.domains = None if not need_domains else utils.initialize_domains(
+        #     self.board)
 
     def update_cell(self, x: int, y: int, value: int):
         self.board[x][y] = value
@@ -83,91 +79,62 @@ class Board:
 
     def classic_back_solver(self):
         self.draw_board()
-        empty = None
-        for i in range(9):
-            for j in range(9):
-                if self.board[i][j] == 0:
-                    empty = (i, j)
-                    break
-            if empty:
-                break
-
-        if not empty:
-            if not self.finished:
-                self.finished = True
-                print('Sudoku solved')
-
-            return True
-        for nums in range(9):
-            if is_valid(self.board, empty[0], empty[1], nums + 1):
-                self.update_cell(empty[0], empty[1], nums + 1)
-                if (nums + 1) != self.solved_board[empty[0]][empty[1]]:
-                    self.cells[empty[0]][empty[1]].update_color((255, 0, 0))
-                else:
-                    self.cells[empty[0]][empty[1]].update_color((0, 0, 0))
-                pg.time.delay(52)
-                self.draw_board()
-                if self.classic_back_solver():
-                    return True
-                self.update_cell(empty[0], empty[1], 0)
-                pg.time.delay(52)
-                self.draw_board()
-
-    def lrv_solver(self):
-        if utils.is_complete(self.board):
+        if is_complete(self.board):
             if not self.finished:
                 print('Sudoku resuelto!')
             self.finished = True
             return True
-        for r in range(9):
-            for c in range(9):
-                if self.board[r][c] == 0:
-                    row, col = r, c
-                    break
-        for value in lrv.least_constraining_value(self.domains, self.board, row, col):
-            if utils.is_consistent(self.board, row, col, value):
-                if value != self.solved_board[row][col]:
-                    self.cells[row][col].update_color((255, 0, 0))
-                else:
-                    self.cells[row][col].update_color((0, 0, 0))
-                self.update_cell(row, col, value)
-                pg.time.delay(52)
-                self.draw_board()
-                utils.forward_checking(
-                    self.domains, row, col, value)
-                if self.lrv_solver():
-                    return True
-                self.update_cell(row, col, 0)
-                pg.time.delay(52)
-                self.draw_board()
-
-    def mrv_solver(self):
-        if utils.is_complete(self.board):
-            if not self.finished:
-                print('Sudoku resuelto!')
-            self.finished = True
-            return True
-        row, col = mrv.select_unassigned_variable_mrv(
-            self.board, self.domains)
-        if row is None:
+        unassigned = get_unassigned_locations(self.board)
+        if not unassigned:
             return False
-        for value in self.domains[(row, col)]:
-            if utils.is_consistent(self.board, row, col, value):
-                if value != self.solved_board[row][col]:
-                    self.cells[row][col].update_color((255, 0, 0))
-                else:
-                    self.cells[row][col].update_color((0, 0, 0))
-                self.update_cell(row, col, value)
-                pg.time.delay(52)
-                self.draw_board()
-                utils.forward_checking(
-                    self.domains, row, col, value)
-                if self.mrv_solver():
-                    return True
-                self.update_cell(row, col, 0)
-                pg.time.delay(52)
-                self.draw_board()
-        return False
+        row, col = unassigned[0]
+        for num in get_possible_values(
+                self.board, row, col):
+            if num != self.solved_board[row][col]:
+                self.cells[row][col].update_color((255, 0, 0))
+            else:
+                self.cells[row][col].update_color((0, 71, 171))
+            self.update_cell(row, col, num)
+            self.board[row][col] = num
+            pg.time.delay(52)
+            self.draw_board()
+            if self.classic_back_solver():
+                return True
+            self.board[row][col] = 0
+            self.update_cell(row, col, 0)
+            pg.time.delay(52)
+            self.draw_board()
+        return None
+
+    def combined_solver(self):
+        self.draw_board()
+        if is_complete(self.board):
+            if not self.finished:
+                print('Sudoku resuelto!')
+            self.finished = True
+            return True
+        next = combined_heuristic(self.board)
+        if next is None:
+            return False
+        row, col = next
+
+        for num in get_possible_values(
+                self.board, row, col):
+            if num != self.solved_board[row][col]:
+                self.cells[row][col].update_color((255, 0, 0))
+            else:
+                self.cells[row][col].update_color((0, 71, 171))
+            self.update_cell(row, col, num)
+            self.board[row][col] = num
+            pg.time.delay(52)
+            self.draw_board()
+            if self.combined_solver():
+                return True
+            self.board[row][col] = 0
+            self.update_cell(row, col, 0)
+            pg.time.delay(52)
+            self.draw_board()
+        return None
 
     def cnn_solver(self):
         self.draw_board()
@@ -202,6 +169,8 @@ class Board:
                 print(
                     f"Error: Se esperaba {self.solved_board[x][y]} pero se obtuvo {val}")
                 self.cells[x][y].update_color((255, 0, 0))
+            else:
+                self.cells[x][y].update_color((0, 71, 171))
             self.update_cell(x, y, val)
             self.draw_board()
             print(
@@ -274,17 +243,14 @@ def run_game(method, model_path=None, index=None):
         screen.fill((255, 255, 255))
         pg.display.set_caption(
             f'SudokIA | {METHODS[method]} | {random_index if index is None else index}')
-        board = Board(screen, cnn_model=model,
-                      need_domains=method == 'lrv' or method == 'mrv')
+        board = Board(screen, cnn_model=model)
         running = True
         while running:
             board.draw_board()
             if method == 'classic':
                 board.classic_back_solver()
-            if method == 'lrv':
-                board.lrv_solver()
-            elif method == 'mrv':
-                board.mrv_solver()
+            if method == 'combined':
+                board.combined_solver()
             elif method == 'cnn':
                 board.cnn_solver()
             elif method == 'gen':

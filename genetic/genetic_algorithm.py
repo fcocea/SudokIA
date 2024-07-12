@@ -2,8 +2,6 @@ import random as rndm
 import genetic.genes as gn
 import genetic.fitness as ft
 import genetic.mutation as mt
-import pandas as pd
-import numpy as np
 
 
 def r_get_mating_pool(population):
@@ -48,7 +46,7 @@ def get_offsprings(population, initial, pm, pc):
     return new_pool
 
 
-def genetic_algorithm():
+def genetic_algorithm(board):
     ## Hyperparameters ##
     # Population size
     POPULATION = 1000
@@ -59,28 +57,17 @@ def genetic_algorithm():
     # Probability of crossover
     PC = 0.95
 
-    def pch(ch):
-        for i in range(9):
-            for j in range(9):
-                print(ch[i][j], end=" ")
-            print("")
-    df = pd.read_csv('data/test.csv').to_numpy()[1]
-
-    def read_puzzle():
-        return np.reshape([int(c) for c in df[0]], (9, 9))
-    initial = read_puzzle()
-
-    population = gn.make_population(POPULATION, initial)
-    for index in range(REPETITION):
+    population = gn.make_population(POPULATION, board)
+    for _ in range(REPETITION):
         mating_pool = r_get_mating_pool(population)
         rndm.shuffle(mating_pool)
-        population = get_offsprings(mating_pool, initial, PM, PC)
+        population = get_offsprings(mating_pool, board, PM, PC)
         fit = [ft.get_fitness(c) for c in population]
         m = max(fit)
-        print(f'Generación {index + 1} - Fitness: {m}')
-        for c in population:
-            if ft.get_fitness(c) == m:
-                pch(c)
         if m == 0:
-            return population
-    return population
+            for c in population:
+                if ft.get_fitness(c) == m:
+                    return c
+    for c in population:
+        if ft.get_fitness(c) == m:
+            return c
