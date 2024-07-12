@@ -1,5 +1,6 @@
 import csv
 import time
+from utils import combined_heuristic
 
 
 def is_complete(board):
@@ -125,8 +126,6 @@ def main():
 
                 for method, heuristic in [
                     ("normal", None),
-                    ("mrv", mrv_heuristic),
-                    ("lcv", lcv_heuristic),
                     ("combined", combined_heuristic),
                 ]:
                     # print(

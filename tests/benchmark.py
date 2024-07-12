@@ -7,7 +7,7 @@ import genetic.genetic_algorithm as genetic
 keras = None
 
 DATA = pd.read_csv('data/test.csv').to_numpy()
-TESTS = 1
+TESTS = 10
 
 
 def run_test(method='classic', model_path=None, all=None):
@@ -37,6 +37,22 @@ def run_test(method='classic', model_path=None, all=None):
         print(f'Total prediction time: {total_prediction_time:.2f}s')
         print(f'Average prediction time: {total_prediction_time/TESTS:.2f}s')
 
+    if method == 'genM':
+        print(f"Running Genetic test ({TESTS})")
+        correct = 0
+        total_time = 0
+        for i in range(TESTS):
+            board, solution = boards[i], solutions[i]
+            start = time.time()
+            resp = genetic.modified_genetic(board)
+            total_time += (time.time() - start)
+            if np.array_equal(resp, solution):
+                correct += 1
+        print(f'Genetic: {correct}/{TESTS} correct')
+        print(f'Accuracy: {correct/TESTS*100:.2f}%')
+        print(f'Total time: {total_time:.2f}s')
+        print(f'Average time: {total_time/TESTS:.2f}s')
+
     if method == 'gen':
         print(f"Running Genetic test ({TESTS})")
         correct = 0
@@ -44,7 +60,6 @@ def run_test(method='classic', model_path=None, all=None):
         for i in range(TESTS):
             board, solution = boards[i], solutions[i]
             start = time.time()
-            # resp = genetic.modified_genetic(board)
             resp = genetic.genetic_algorithm(board)
             total_time += (time.time() - start)
             if np.array_equal(resp, solution):

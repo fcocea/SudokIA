@@ -5,8 +5,8 @@ import genetic.mutation as mt
 import back.classic as bc
 import back.utils as ut
 
-POPULATION = 500
-REPETITION = 500
+POPULATION = 1000
+REPETITION = 1000
 PM = 0.1
 PC = 0.95
 
@@ -65,18 +65,15 @@ def modified_genetic(board):
         population = get_offsprings(mating_pool, board, PM, PC)
         fit = [ft.get_fitness(c) for c in population]
         m = max(fit)
-        if m >= -10:
+        if m >= -2:
             if m == 0:
                 break
             for c in population:
                 _m, failed = ft.get_fitness(c, True)
                 if _m == m:
-                    print(failed)
-                    print(_m)
                     for pos in failed:
                         c[pos[0]][pos[1]] = 0
                     return bc.backtracking(c, ut.combined_heuristic)
     for c in population:
         if ft.get_fitness(c) == m:
-            print("m es 0")
             return c
