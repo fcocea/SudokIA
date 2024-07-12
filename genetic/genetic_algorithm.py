@@ -2,6 +2,13 @@ import random as rndm
 import genetic.genes as gn
 import genetic.fitness as ft
 import genetic.mutation as mt
+import back.classic as bc
+import back.utils as ut
+
+POPULATION = 500
+REPETITION = 500
+PM = 0.1
+PC = 0.95
 
 
 def r_get_mating_pool(population):
@@ -14,19 +21,6 @@ def r_get_mating_pool(population):
     weight = list(range(1, len(fitness_list) + 1))
     for _ in range(len(population)):
         ch = rndm.choices(fitness_list, weight)[0]
-        pool.append(ch[1])
-    return pool
-
-
-def w_get_mating_pool(population):
-    fitness_list = []
-    pool = []
-    for chromosome in population:
-        fitness = ft.get_fitness(chromosome)
-        fitness_list.append((fitness, chromosome))
-    weight = [fit[0] - fitness_list[0][0] for fit in fitness_list]
-    for _ in range(len(population)):
-        ch = rndm.choices(fitness_list, weights=weight)[0]
         pool.append(ch[1])
     return pool
 
@@ -47,16 +41,6 @@ def get_offsprings(population, initial, pm, pc):
 
 
 def genetic_algorithm(board):
-    ## Hyperparameters ##
-    # Population size
-    POPULATION = 1000
-    # Number of generations
-    REPETITION = 1000
-    # Probability of mutation
-    PM = 0.1
-    # Probability of crossover
-    PC = 0.95
-
     population = gn.make_population(POPULATION, board)
     for _ in range(REPETITION):
         mating_pool = r_get_mating_pool(population)
@@ -70,4 +54,29 @@ def genetic_algorithm(board):
                     return c
     for c in population:
         if ft.get_fitness(c) == m:
+            return c
+
+
+def modified_genetic(board):
+    population = gn.make_population(POPULATION, board)
+    for _ in range(REPETITION):
+        mating_pool = r_get_mating_pool(population)
+        rndm.shuffle(mating_pool)
+        population = get_offsprings(mating_pool, board, PM, PC)
+        fit = [ft.get_fitness(c) for c in population]
+        m = max(fit)
+        if m >= -10:
+            if m == 0:
+                break
+            for c in population:
+                _m, failed = ft.get_fitness(c, True)
+                if _m == m:
+                    print(failed)
+                    print(_m)
+                    for pos in failed:
+                        c[pos[0]][pos[1]] = 0
+                    return bc.backtracking(c, ut.combined_heuristic)
+    for c in population:
+        if ft.get_fitness(c) == m:
+            print("m es 0")
             return c

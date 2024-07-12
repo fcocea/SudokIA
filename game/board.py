@@ -9,14 +9,7 @@ import genetic.genetic_algorithm as ga
 import genetic.fitness as ft
 import random as rndm
 from cnn.test import denorm, norm
-# Population size
-POPULATION = 1000
-# Number of generations
-REPETITION = 1000
-# Probability of mutation
-PM = 0.1
-# Probability of crossover
-PC = 0.95
+from genetic.genetic_algorithm import POPULATION, REPETITION, PM, PC
 
 DATA = pd.read_csv('data/test.csv').to_numpy()
 keras = None
@@ -40,8 +33,6 @@ class Board:
         self.cnn_model = cnn_model
         self.cnn_feet = norm(self.board.copy()) if cnn_model else None
         self.finished = False
-        # self.domains = None if not need_domains else utils.initialize_domains(
-        #     self.board)
 
     def update_cell(self, x: int, y: int, value: int):
         self.board[x][y] = value
@@ -198,12 +189,17 @@ class Board:
                                 self.update_cell(i, j, c[i][j])
                                 if c[i][j] != self.solved_board[i][j]:
                                     self.cells[i][j].update_color((255, 0, 0))
+                                    self.update_cell(i, j, 0)
                                 else:
-                                    self.cells[i][j].update_color((0, 0, 0))
+                                    self.cells[i][j].update_color((0, 71, 171))
                     self.draw_board()
-            if m == 0:
-                self.finished = True
-                break
+            if m >= -5:
+                if m == 0:
+                    print('Sudoku resuelto!')
+                    self.finished = True
+                else:
+                    self.combined_solver()
+                    return
         if not self.finished:
             print(
                 f'No se pudo resolver el Sudoku en {REPETITION} repeticiones')

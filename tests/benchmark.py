@@ -7,7 +7,7 @@ import genetic.genetic_algorithm as genetic
 keras = None
 
 DATA = pd.read_csv('data/test.csv').to_numpy()
-TESTS = 50
+TESTS = 1
 
 
 def run_test(method='classic', model_path=None, all=None):
@@ -42,8 +42,9 @@ def run_test(method='classic', model_path=None, all=None):
         correct = 0
         total_time = 0
         for i in range(TESTS):
-            board, solution = boards[323], solutions[323]
+            board, solution = boards[i], solutions[i]
             start = time.time()
+            # resp = genetic.modified_genetic(board)
             resp = genetic.genetic_algorithm(board)
             total_time += (time.time() - start)
             if np.array_equal(resp, solution):
