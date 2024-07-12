@@ -18,6 +18,7 @@ METHODS = {
     'cnn': 'Redes Neuronales Convolucionales',
     'classic': 'Backtracking Clásico',
     'gen': 'Algoritmo Genético',
+    'genM': 'Algoritmo Genético +',
     'combined': 'Heurística Combinada (LCV | MRV) - Backtracking'
 }
 
@@ -168,6 +169,45 @@ class Board:
                 f"Actualizando la celda ({x}, {y}) con {val}")
             self.cnn_feet = norm(self.cnn_feet)
 
+    def genM_solver(self):
+        self.draw_board()
+        if self.finished:
+            return True
+        initial = self.board.copy()
+        population = gn.make_population(POPULATION, initial)
+        for index in range(REPETITION):
+            mating_pool = ga.r_get_mating_pool(population)
+            rndm.shuffle(mating_pool)
+            population = ga.get_offsprings(mating_pool, initial, PM, PC)
+            fit = [ft.get_fitness(c) for c in population]
+            m = max(fit)
+            print(f'Generación {index + 1} - Fitness: {m}')
+            for c in population:
+                if ft.get_fitness(c) == m:
+                    for i in range(9):
+                        for j in range(9):
+                            if c[i][j] != self.board[i][j]:
+                                self.update_cell(i, j, c[i][j])
+                                if c[i][j] != self.solved_board[i][j]:
+                                    self.cells[i][j].update_color((255, 0, 0))
+                                    self.update_cell(i, j, 0)
+                                else:
+                                    self.cells[i][j].update_color((0, 71, 171))
+                    self.draw_board()
+            if m >= -10:
+                if m == 0:
+                    print('Sudoku resuelto!')
+                    self.finished = True
+                else:
+                    self.combined_solver()
+                    return
+        if not self.finished:
+            print(
+                f'No se pudo resolver el Sudoku en {REPETITION} repeticiones')
+            self.finished = True
+        else:
+            print('Sudoku resuelto!')
+
     def gen_solver(self):
         self.draw_board()
         if self.finished:
@@ -193,13 +233,9 @@ class Board:
                                 else:
                                     self.cells[i][j].update_color((0, 71, 171))
                     self.draw_board()
-            if m >= -5:
-                if m == 0:
-                    print('Sudoku resuelto!')
-                    self.finished = True
-                else:
-                    self.combined_solver()
-                    return
+            if m == 0:
+                self.finished = True
+                break
         if not self.finished:
             print(
                 f'No se pudo resolver el Sudoku en {REPETITION} repeticiones')
@@ -251,6 +287,8 @@ def run_game(method, model_path=None, index=None):
                 board.cnn_solver()
             elif method == 'gen':
                 board.gen_solver()
+            elif method == 'genM':
+                board.genM_solver()
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False

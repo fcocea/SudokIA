@@ -5,8 +5,8 @@ import genetic.mutation as mt
 import back.classic as bc
 import back.utils as ut
 
-POPULATION = 1000
-REPETITION = 1000
+POPULATION = 500
+REPETITION = 500
 PM = 0.1
 PC = 0.95
 
