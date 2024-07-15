@@ -19,6 +19,7 @@ dataset de millones de juegos, con su respectiva solución, para afrontar de mej
 
 ### Instrucciones de uso
 
+Se requiere una instalación correcta de TensorFlow, para más información del proceso de instalación se puede consultar la [documentación oficial](https://www.tensorflow.org/install/pip).
 1. Clonar el repositorio
 ```bash
 git clone https://github.com/fcocea/SudokIA
@@ -43,3 +44,14 @@ Se tiene el módelo ya entrenado con el algoritmo de resolución de Sudoku, para
 ```bash
 python main.py --solve --method cnn --model cnn/Model9x64x5-11.keras
 ```
+
+### Referencias
+- [Building a Deep Learning Model to Solve Sudoku: A Case Study with CNNs](https://www.linkedin.com/pulse/building-deep-learning-model-solve-sudoku-case-study-withcnns-yu/)
+- [Sudoku Solver - @felipecacique](https://github.com/felipecacique/SudokuSolver)
+- [Solving Sudoku with Neural Networks](https://cs230.stanford.edu/files_winter_2018/projects/6939771.pdf)
+
+#### Creditos
+Proyecto realizado por:
+- Oscar Castillo
+- Francisco Cea
+- Matias Gayoso    
